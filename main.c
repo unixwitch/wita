@@ -70,7 +70,7 @@
 #include	"wita.h"
 
 char const	*cfg = "/etc/opt/ts/wita.cfg";
-int		 port;	/* Solaris event port */1
+int		 port;	/* Solaris event port */
 
 /*
  * Handle async signal delivery and send the signal as
@@ -105,7 +105,7 @@ int		 c;
 
 		default:
 			syslog(LOG_ERR, "usage: wita [-c cfg]");
-			(void) fprintf(stderr, "usage: wita [-c cfg]");
+			(void) fprintf(stderr, "usage: wita [-c cfg]\n");
 			return 1;
 		}
 	}
