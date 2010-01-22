@@ -199,7 +199,7 @@ struct itimerspec	 ts;
 
 		if (timer_settime(server->sr_timer, 0, &ts, NULL) == -1) {
 			syslog(LOG_ERR, "%s[%s]:%s: server_start_connect_check: "
-					"cannot set connect time: timer_settime: %m",
+					"cannot set connect timer: timer_settime: %m",
 					server->sr_name, server->sr_address,
 					server->sr_port);
 			server_cancel_check(server);
