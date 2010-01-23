@@ -12,7 +12,7 @@
 #include	<sys/socket.h>
 #include	<time.h>
 
-#define WITA_VERSION "1.0"
+#define WITA_VERSION "1.1-dev"
 
 /*
  * A single server.
