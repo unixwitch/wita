@@ -18,6 +18,7 @@
 #include	<assert.h>
 #include	<unistd.h>
 #include	<syslog.h>
+#include	<strings.h>
 
 #include	"wita.h"
 

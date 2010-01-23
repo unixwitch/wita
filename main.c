@@ -95,11 +95,15 @@ int		 c;
 
 	openlog("wita", LOG_PID, LOG_DAEMON);
 
-	while ((c = getopt(argc, argv, "c:")) != -1) {
+	while ((c = getopt(argc, argv, "vc:")) != -1) {
 		switch(c) {
 		case 'c':
 			cfg = optarg;
 			break;
+
+		case 'v':
+			(void) fprintf(stderr, "wita version %s\n", WITA_VERSION);
+			return 0;
 
 		default:
 			syslog(LOG_ERR, "usage: wita [-c cfg]");
