@@ -6,8 +6,6 @@
  * warranty.
  */
   
-/* $Id: server.c 263 2010-01-09 22:04:59Z river $ */
-
 #include	<sys/socket.h>
 #include	<stdio.h>
 #include	<errno.h>
@@ -68,7 +66,7 @@ char		 *sport;
 		return sr;
 
 	if ((sr = calloc(1, sizeof(server_t))) == NULL)
-		return NULL;
+		goto err;
 
 	ev.sigev_notify = SIGEV_PORT;
 	ev.sigev_signo = 0;
@@ -78,14 +76,12 @@ char		 *sport;
 
 	if (timer_create(CLOCK_REALTIME, &ev, &sr->sr_timer) == -1) {
 		syslog(LOG_ERR, "cannot create timer: %m");
-		free(sr);
-		return NULL;
+		goto err;
 	}
 
 	if ((sr->sr_name = strdup(name)) == NULL) {
 		syslog(LOG_ERR, "out of memory (trying to continue anyway)");
-		free_server(sr);
-		return NULL;
+		goto err;
 	}
 
 	if ((sport = strchr(sr->sr_name, ':')) != NULL) {
@@ -94,7 +90,7 @@ char		 *sport;
 	} else
 		sr->sr_port = "3306";
 
-	(void) memset(&hints, 0, sizeof hints);
+	bzero(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
@@ -108,10 +104,8 @@ char		 *sport;
 	if ((i = getnameinfo(res->ai_addr, res->ai_addrlen, addr, sizeof addr,
 					NULL, 0, NI_NUMERICHOST)) != 0) {
 		syslog(LOG_ERR, "cannot translate %s to IP: %s", name, gai_strerror(i));
-		freeaddrinfo(res);
-		free_server(sr);
 		errno = EINVAL;
-		return NULL;
+		goto err;
 	}
 
 	/*
@@ -120,18 +114,18 @@ char		 *sport;
 	assert(res->ai_addrlen == sizeof (sr->sr_sockaddr));
 	(void) memcpy(&sr->sr_sockaddr, res->ai_addr, sizeof (sr->sr_sockaddr));
 	freeaddrinfo(res);
+	res = NULL;
 
 	if ((sr->sr_address = strdup(addr)) == NULL) {
 		syslog(LOG_ERR, "out of memory (trying to continue anyway)");
-		free_server(sr);
-		return NULL;
+		goto err;
 	}
 
 	sr->sr_online = 0;
 
 	if ((newsr = realloc(conf->servers, sizeof(server_t *) * (conf->nservers + 1))) == NULL) {
-		free_server(sr);
-		return NULL;
+		syslog(LOG_ERR, "out of memory (trying to continue anyway)");
+		goto err;
 	}
 
 	conf->servers = newsr;
@@ -139,6 +133,13 @@ char		 *sport;
 	conf->nservers++;
 
 	return sr;
+
+err:
+	free_server(sr);
+	if (res)
+		freeaddrinfo(res);
+	return NULL;
+
 }
 
 /*
@@ -194,7 +195,7 @@ struct itimerspec	 ts;
 		/*
 		 * Set the timer for 5 seconds.
 		 */
-		(void) memset(&ts, 0, sizeof ts);
+		bzero(&ts, sizeof(ts));
 		ts.it_value.tv_sec = 5;
 
 		if (timer_settime(server->sr_timer, 0, &ts, NULL) == -1) {
@@ -234,7 +235,7 @@ struct itimerspec	ts;
 	/*
 	 * Set the timer for 5 seconds.
 	 */
-	(void) memset(&ts, 0, sizeof ts);
+	bzero(&ts, sizeof(ts));
 	ts.it_value.tv_sec = 5;
 
 	if (timer_settime(server->sr_timer, 0, &ts, NULL) == -1) {
@@ -265,7 +266,7 @@ struct itimerspec	ts;
 	sr->sr_state = SR_IDLE;
 
 	/* Check again in 5 seconds. */
-	(void) memset(&ts, 0, sizeof ts);
+	bzero(&ts, sizeof(ts));
 	ts.it_value.tv_sec = 5;
 	if (timer_settime(sr->sr_timer, 0, &ts, NULL) == -1) {
 		syslog(LOG_ERR, "%s[%s]:%s: server_up: "
@@ -296,7 +297,7 @@ struct itimerspec	ts;
 	sr->sr_state = SR_IDLE;
 
 	/* Check again in 5 seconds. */
-	(void) memset(&ts, 0, sizeof ts);
+	bzero(&ts, sizeof(ts));
 	ts.it_value.tv_sec = 5;
 	if (timer_settime(sr->sr_timer, 0, &ts, NULL) == -1) {
 		syslog(LOG_ERR, "%s[%s]:%s: server_down: "
@@ -318,7 +319,7 @@ struct itimerspec	ts;
 	sr->sr_state = SR_IDLE;
 
 	/* Check again in 5 seconds. */
-	(void) memset(&ts, 0, sizeof ts);
+	bzero(&ts, sizeof(ts));
 	ts.it_value.tv_sec = 5;
 	if (timer_settime(sr->sr_timer, 0, &ts, NULL) == -1) {
 		syslog(LOG_ERR, "%s[%s]:%s: server_cancel_check: "
@@ -355,7 +356,7 @@ struct itimerspec	ts;
 		/*
 		 * Set the timer for 5 seconds.
 		 */
-		(void) memset(&ts, 0, sizeof ts);
+		bzero(&ts, sizeof(ts));
 		ts.it_value.tv_sec = 5;
 
 		if (timer_settime(sr->sr_timer, 0, &ts, NULL) == -1) {

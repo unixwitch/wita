@@ -6,8 +6,6 @@
  * warranty.
  */
   
-/* $Id: pdns.c 261 2010-01-09 21:31:31Z river $ */
-
 /*
  * Handle incoming data from PowerDNS.
  */

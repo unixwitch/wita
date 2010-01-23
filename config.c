@@ -6,8 +6,6 @@
  * warranty.
  */
   
-/* $Id: config.c 261 2010-01-09 21:31:31Z river $ */
-
 #include	<stdio.h>
 #include	<assert.h>
 #include	<errno.h>
@@ -114,8 +112,6 @@ int	i;
 		free_group(conf->groups[i]);
 	free(conf->groups);
 
-	for (i = 0; i < conf->nservers; ++i)
-		free_server(conf->servers[i]);
 	free(conf->servers);
 
 	free(conf);

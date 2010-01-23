@@ -6,8 +6,6 @@
  * warranty.
  */
   
-/* $Id: main.c 264 2010-01-10 12:28:39Z river $ */
-
 /*
  * wita: PowerDNS backend to return a list of A records based on which
  * servers are online.

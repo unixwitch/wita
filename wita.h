@@ -6,8 +6,6 @@
  * warranty.
  */
   
-/* $Id: wita.h 263 2010-01-09 22:04:59Z river $ */
-
 #ifndef	WITA_H
 #define	WITA_H
 
